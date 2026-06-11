@@ -30,17 +30,19 @@ function extractHasNext(payload, page, pageSize, fetchedSoFar) {
   return extractResults(payload).length >= pageSize;
 }
 
-// Arma el cuerpo del POST de consulta.
-// El estandar PDN espera SIEMPRE un objeto "query" (los filtros de busqueda),
-// aunque vaya vacio. Si no lo mandamos, el servidor del ente truena con HTTP 500.
-function buildQueryBody(ente, page, since) {
-  const body = { page, pageSize: config.pageSize, query: {} };
+// Arma la paginacion como parametros de la URL (?page=1&pageSize=100).
+// IMPORTANTE: este endpoint NO acepta cuerpo (body). Si se le manda uno,
+// responde HTTP 500. Por eso la paginacion va en la direccion, no en el cuerpo.
+function buildQueryString(ente, page, since) {
+  const qs = new URLSearchParams({
+    page: String(page),
+    pageSize: String(config.pageSize),
+  });
   if (ente.incremental && since) {
     // El nombre del parametro de fecha depende de la API del ente.
-    const field = ente.fechaParam || "fechaActualizacion";
-    body.query[field] = since;
+    qs.set(ente.fechaParam || "fechaActualizacion", since);
   }
-  return body;
+  return qs.toString();
 }
 
 // Descarga TODAS las declaraciones del ente, pagina por pagina.
@@ -55,13 +57,13 @@ export async function fetchDeclaraciones(ente, { since = null, onItems }) {
 
   while (true) {
     const doRequest = async () =>
-      fetchWithRetry(url, {
+      fetchWithRetry(`${url}?${buildQueryString(ente, page, since)}`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          Accept: "*/*",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(buildQueryBody(ente, page, since)),
+        // Sin body: este endpoint responde 500 si recibe un cuerpo.
       });
 
     let res = await doRequest();
