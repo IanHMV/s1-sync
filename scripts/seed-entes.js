@@ -16,7 +16,7 @@ const ENTES = [
     activo: true,
 
     // URL base y ruta del endpoint de declaraciones (de tu Insomnia).
-    baseUrl: "https://apisidepat.cuauhtemoc-col.gob.mx",
+    baseUrl: "http://apisidepat.auditoriaenlineaosaf.mx",
     declaracionesPath: "/api/auth/v2/declaraciones",
 
     // URL del login OAuth2.
