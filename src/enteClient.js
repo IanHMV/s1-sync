@@ -4,8 +4,7 @@ import { logger } from "./logger.js";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// === PUNTO A VERIFICAR CON TU ENTE ===
-// El estandar PDN envuelve la respuesta en { pagination: {...}, results: [...] }.
+// === RESPUESTA DE LA API: { pagination: {...}, results: [...] } ===
 function extractResults(payload) {
   return payload.results || payload.data || payload.declaraciones || [];
 }
@@ -25,27 +24,38 @@ function extractHasNext(payload, pageSize, fetchedSoFar) {
   return extractResults(payload).length >= pageSize;
 }
 
-// Paginacion en la URL (?page=1&pageSize=100). Este endpoint NO acepta cuerpo.
-function buildQueryString(ente, page, since) {
-  const qs = new URLSearchParams({
-    page: String(page),
-    pageSize: String(config.pageSize),
-  });
-  if (ente.incremental && since)
-    qs.set(ente.fechaParam || "fechaActualizacion", since);
-  return qs.toString();
+// === CUERPO DE LA CONSULTA ===
+// La paginacion (page/pageSize) va EN EL CUERPO, no en la URL.
+// El objeto "query" debe traer los filtros que el servidor del ente espera,
+// aunque vayan vacios; si falta alguno, su codigo truena con "Undefined index".
+// Confirmado en pruebas con el ente OSAFIG: requiere "totalIngresosNetos".
+// Si algun otro ente exigiera mas filtros, se pueden agregar por ente con
+// ente.queryExtra (un objeto que se mezcla con este query base).
+function buildBody(ente, page, since) {
+  const query = { totalIngresosNetos: { min: "", max: "" } };
+  if (ente.queryExtra && typeof ente.queryExtra === "object") {
+    Object.assign(query, ente.queryExtra);
+  }
+  if (ente.incremental && since) {
+    query[ente.fechaParam || "fechaActualizacion"] = since;
+  }
+  return { page, pageSize: config.pageSize, query };
 }
 
-// Hace el POST y lee el JSON bajo UN MISMO limite de tiempo, con reintentos.
-// Asi una respuesta lenta o colgada no deja el proceso esperando para siempre.
-async function postPage(url, token) {
+// POST + lectura del JSON bajo un mismo limite de tiempo, con reintentos.
+async function postPage(url, token, body) {
   for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), config.httpTimeoutMs);
     try {
       const res = await fetch(url, {
         method: "POST",
-        headers: { Accept: "*/*", Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "*/*",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
         signal: controller.signal,
       });
       if (res.status === 401) {
@@ -89,7 +99,7 @@ async function postPage(url, token) {
 // Descarga TODAS las declaraciones del ente, pagina por pagina, con visibilidad
 // (avisa cada pagina) y frenos de seguridad contra cuelgues y bucles.
 export async function fetchDeclaraciones(ente, { since = null, onItems }) {
-  const base = ente.baseUrl.replace(/\/$/, "") + ente.declaracionesPath;
+  const url = ente.baseUrl.replace(/\/$/, "") + ente.declaracionesPath;
   let token = await getToken(ente);
   let page = 1;
   let fetched = 0;
@@ -97,13 +107,13 @@ export async function fetchDeclaraciones(ente, { since = null, onItems }) {
   let prevFirstId = null;
   let reauthed = false;
 
-  const HARD_MAX_PAGES = 5000; // freno absoluto: jamas mas paginas que esto
+  const HARD_MAX_PAGES = 5000; // freno absoluto
 
   while (page <= HARD_MAX_PAGES) {
-    const url = `${base}?${buildQueryString(ente, page, since)}`;
+    const body = buildBody(ente, page, since);
     logger.info("Solicitando pagina", { ente: ente.nombre, page });
 
-    let r = await postPage(url, token);
+    let r = await postPage(url, token, body);
     if (r.status === 401 && !reauthed) {
       logger.info("Token expirado, re-autenticando", {
         ente: ente.nombre,
@@ -111,7 +121,7 @@ export async function fetchDeclaraciones(ente, { since = null, onItems }) {
       });
       token = await getToken(ente, { force: true });
       reauthed = true;
-      r = await postPage(url, token);
+      r = await postPage(url, token, body);
     }
     if (r.status !== 200) {
       throw new Error(
@@ -123,17 +133,14 @@ export async function fetchDeclaraciones(ente, { since = null, onItems }) {
     if (totalRows == null) totalRows = extractTotal(r.data);
 
     // Si la pagina trae el mismo primer registro que la anterior, el servidor
-    // esta ignorando ?page (no avanza). Cortamos para no dar vueltas en vano.
+    // no esta avanzando. Cortamos para no dar vueltas en vano.
     const firstId = items[0]?.id ?? null;
     if (page > 1 && firstId != null && firstId === prevFirstId) {
-      logger.warn(
-        "La pagina no avanza (mismo primer registro); el servidor ignora ?page. Deteniendo.",
-        {
-          ente: ente.nombre,
-          page,
-          firstId,
-        },
-      );
+      logger.warn("La pagina no avanza (mismo primer registro). Deteniendo.", {
+        ente: ente.nombre,
+        page,
+        firstId,
+      });
       break;
     }
     prevFirstId = firstId;
