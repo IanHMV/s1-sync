@@ -25,12 +25,9 @@ function extractHasNext(payload, pageSize, fetchedSoFar) {
 }
 
 // === CUERPO DE LA CONSULTA ===
-// La paginacion (page/pageSize) va EN EL CUERPO, no en la URL.
-// El objeto "query" debe traer los filtros que el servidor del ente espera,
-// aunque vayan vacios; si falta alguno, su codigo truena con "Undefined index".
-// Confirmado en pruebas con el ente OSAFIG: requiere "totalIngresosNetos".
-// Si algun otro ente exigiera mas filtros, se pueden agregar por ente con
-// ente.queryExtra (un objeto que se mezcla con este query base).
+// La paginacion (page/pageSize) va EN EL CUERPO. El objeto "query" debe traer
+// los filtros que el servidor del ente espera, aunque vayan vacios; si falta
+// alguno, su codigo truena. Confirmado: requiere "totalIngresosNetos".
 function buildBody(ente, page, since) {
   const query = { totalIngresosNetos: { min: "", max: "" } };
   if (ente.queryExtra && typeof ente.queryExtra === "object") {
@@ -96,16 +93,20 @@ async function postPage(url, token, body) {
   return { status: 0, errorText: "sin respuesta" };
 }
 
-// Descarga TODAS las declaraciones del ente, pagina por pagina, con visibilidad
-// (avisa cada pagina) y frenos de seguridad contra cuelgues y bucles.
+// Descarga las declaraciones del ente, pagina por pagina.
+// RESILIENTE: si el servidor del ente falla en una pagina (p.ej. su SQL esta
+// rota para ciertos registros), esa pagina se ANOTA y se SALTA; no tumba la
+// sincronizacion ni pierde lo ya descargado.
 export async function fetchDeclaraciones(ente, { since = null, onItems }) {
   const url = ente.baseUrl.replace(/\/$/, "") + ente.declaracionesPath;
   let token = await getToken(ente);
   let page = 1;
   let fetched = 0;
   let totalRows = null;
+  let expectedPages = null;
   let prevFirstId = null;
   let reauthed = false;
+  const failedPages = [];
 
   const HARD_MAX_PAGES = 5000; // freno absoluto
 
@@ -123,17 +124,32 @@ export async function fetchDeclaraciones(ente, { since = null, onItems }) {
       reauthed = true;
       r = await postPage(url, token, body);
     }
+
+    // Pagina con error del servidor del ente: anotar, saltar y seguir.
     if (r.status !== 200) {
-      throw new Error(
-        `Consulta fallida en "${ente.nombre}" pagina ${page}: HTTP ${r.status} ${(r.errorText || "").slice(0, 200)}`,
+      failedPages.push(page);
+      logger.warn(
+        "Pagina con error en el servidor del ente; se omite y se continua",
+        {
+          ente: ente.nombre,
+          page,
+          status: r.status,
+          detalle: (r.errorText || "").slice(0, 160),
+        },
       );
+      if (expectedPages != null && page >= expectedPages) break;
+      page += 1;
+      continue;
     }
 
     const items = extractResults(r.data);
-    if (totalRows == null) totalRows = extractTotal(r.data);
+    if (totalRows == null) {
+      totalRows = extractTotal(r.data);
+      if (totalRows != null)
+        expectedPages = Math.ceil(totalRows / config.pageSize);
+    }
 
-    // Si la pagina trae el mismo primer registro que la anterior, el servidor
-    // no esta avanzando. Cortamos para no dar vueltas en vano.
+    // Si la pagina trae el mismo primer registro que la anterior, no avanza.
     const firstId = items[0]?.id ?? null;
     if (page > 1 && firstId != null && firstId === prevFirstId) {
       logger.warn("La pagina no avanza (mismo primer registro). Deteniendo.", {
@@ -158,8 +174,8 @@ export async function fetchDeclaraciones(ente, { since = null, onItems }) {
       total: totalRows ?? "?",
     });
 
-    if (totalRows != null) {
-      if (fetched >= totalRows) break;
+    if (expectedPages != null) {
+      if (page >= expectedPages) break;
     } else if (!extractHasNext(r.data, config.pageSize, fetched)) {
       break;
     }
@@ -167,5 +183,16 @@ export async function fetchDeclaraciones(ente, { since = null, onItems }) {
     page += 1;
   }
 
-  return { fetched, pages: page };
+  if (failedPages.length) {
+    logger.warn(
+      "Resumen de paginas omitidas por errores del servidor del ente",
+      {
+        ente: ente.nombre,
+        total: failedPages.length,
+        paginas: failedPages.slice(0, 50),
+      },
+    );
+  }
+
+  return { fetched, failedPages };
 }
