@@ -13,6 +13,16 @@ import { logger } from "./logger.js";
 
 const LOCK_NAME = "s1-sync-run";
 
+// Suelta el candado de la corrida. La usa index.js al apagar (Ctrl+C / SIGTERM)
+// para no dejarlo atascado.
+export async function releaseRunLock() {
+  try {
+    await releaseLock(LOCK_NAME);
+  } catch {
+    /* sin conexion: lo limpia el TTL */
+  }
+}
+
 // Hace upsert de un lote por la clave natural "id" (NO por _id).
 // upsert:true => si la declaracion ya existe la actualiza; si no, la inserta.
 // Esto es lo que evita duplicados en cada corrida quincenal.
