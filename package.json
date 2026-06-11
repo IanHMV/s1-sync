@@ -1,0 +1,21 @@
+{
+  "name": "s1-sync",
+  "version": "1.0.0",
+  "description": "Servicio de sincronizacion que alimenta la coleccion declaraciones del S1 (PDN) desde las APIs OAuth2 de varios entes.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "sync:once": "node src/index.js --once",
+    "seed:entes": "node scripts/seed-entes.js",
+    "genkey": "node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\""
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "mongodb": "^6.8.0",
+    "node-cron": "^3.0.3",
+    "zod": "^3.23.8"
+  }
+}
