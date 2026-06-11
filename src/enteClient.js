@@ -1,7 +1,7 @@
-import { fetchWithRetry } from './http.js';
-import { getToken } from './oauth.js';
-import { config } from './config.js';
-import { logger } from './logger.js';
+import { fetchWithRetry } from "./http.js";
+import { getToken } from "./oauth.js";
+import { config } from "./config.js";
+import { logger } from "./logger.js";
 
 // === PUNTO A VERIFICAR CON TU ENTE ===
 // El estandar PDN envuelve la respuesta en { pagination: {...}, results: [...] }.
@@ -13,10 +13,16 @@ function extractResults(payload) {
   return payload.results || payload.data || payload.declaraciones || [];
 }
 function extractTotal(payload) {
-  return payload?.pagination?.totalRows ?? payload?.pagination?.total ?? payload?.totalRows ?? null;
+  return (
+    payload?.pagination?.totalRows ??
+    payload?.pagination?.total ??
+    payload?.totalRows ??
+    null
+  );
 }
 function extractHasNext(payload, page, pageSize, fetchedSoFar) {
-  if (typeof payload?.pagination?.hasNextPage === 'boolean') return payload.pagination.hasNextPage;
+  if (typeof payload?.pagination?.hasNextPage === "boolean")
+    return payload.pagination.hasNextPage;
   const total = extractTotal(payload);
   if (total != null) return fetchedSoFar < total;
   // Si no hay metadatos de paginacion, asumimos que no hay mas cuando la pagina
@@ -24,14 +30,15 @@ function extractHasNext(payload, page, pageSize, fetchedSoFar) {
   return extractResults(payload).length >= pageSize;
 }
 
-// Arma el cuerpo del POST de consulta. Incluye el filtro incremental por fecha
-// SOLO si el ente lo soporta (ente.incremental === true).
+// Arma el cuerpo del POST de consulta.
+// El estandar PDN espera SIEMPRE un objeto "query" (los filtros de busqueda),
+// aunque vaya vacio. Si no lo mandamos, el servidor del ente truena con HTTP 500.
 function buildQueryBody(ente, page, since) {
-  const body = { page, pageSize: config.pageSize };
+  const body = { page, pageSize: config.pageSize, query: {} };
   if (ente.incremental && since) {
     // El nombre del parametro de fecha depende de la API del ente.
-    const field = ente.fechaParam || 'fechaActualizacion';
-    body[field] = since;
+    const field = ente.fechaParam || "fechaActualizacion";
+    body.query[field] = since;
   }
   return body;
 }
@@ -40,7 +47,7 @@ function buildQueryBody(ente, page, since) {
 // onItems(items) se llama por cada pagina para procesarla en streaming
 // (no acumulamos todo en memoria).
 export async function fetchDeclaraciones(ente, { since = null, onItems }) {
-  const url = ente.baseUrl.replace(/\/$/, '') + ente.declaracionesPath;
+  const url = ente.baseUrl.replace(/\/$/, "") + ente.declaracionesPath;
   let token = await getToken(ente);
   let page = 1;
   let fetched = 0;
@@ -49,9 +56,9 @@ export async function fetchDeclaraciones(ente, { since = null, onItems }) {
   while (true) {
     const doRequest = async () =>
       fetchWithRetry(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(buildQueryBody(ente, page, since)),
@@ -61,15 +68,20 @@ export async function fetchDeclaraciones(ente, { since = null, onItems }) {
 
     // Token expirado a mitad del paginado: re-autenticamos una vez y reintentamos.
     if (res.status === 401 && !reauthed) {
-      logger.info('Token expirado, re-autenticando', { ente: ente.nombre, page });
+      logger.info("Token expirado, re-autenticando", {
+        ente: ente.nombre,
+        page,
+      });
       token = await getToken(ente, { force: true });
       reauthed = true;
       res = await doRequest();
     }
 
     if (!res.ok) {
-      const text = await res.text().catch(() => '');
-      throw new Error(`Consulta fallida en "${ente.nombre}" pagina ${page}: HTTP ${res.status} ${text.slice(0, 200)}`);
+      const text = await res.text().catch(() => "");
+      throw new Error(
+        `Consulta fallida en "${ente.nombre}" pagina ${page}: HTTP ${res.status} ${text.slice(0, 200)}`,
+      );
     }
 
     const payload = await res.json();
@@ -78,7 +90,11 @@ export async function fetchDeclaraciones(ente, { since = null, onItems }) {
 
     if (items.length) await onItems(items);
 
-    if (!extractHasNext(payload, page, config.pageSize, fetched) || items.length === 0) break;
+    if (
+      !extractHasNext(payload, page, config.pageSize, fetched) ||
+      items.length === 0
+    )
+      break;
     page += 1;
   }
 
