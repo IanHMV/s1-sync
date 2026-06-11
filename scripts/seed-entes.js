@@ -20,7 +20,7 @@ const ENTES = [
     declaracionesPath: "/api/auth/v2/declaraciones",
 
     // URL del login OAuth2.
-    tokenUrl: "https://apisidepat.cuauhtemoc-col.gob.mx/api/auth/login",
+    tokenUrl: "http://apisidepat.auditoriaenlineaosaf.mx/api/auth/login",
 
     // Sincronizacion incremental: dejalo en false hasta CONFIRMAR que la API
     // del ente acepta filtrar por fecha. Si la acepta, pon true y ajusta
@@ -30,11 +30,11 @@ const ENTES = [
 
     auth: {
       authMode: "oauth", // 'oauth' (form-urlencoded) o 'json'
-      username: "pdnuser_001", // se cifra
-      password: "secret_pdnuser_001", // se cifra
-      clientId: "1", // queda en claro (no es secreto)
+      username: "pdnuser_004", // se cifra
+      password: "secret_pdnuser_004", // se cifra
+      clientId: "4", // queda en claro (no es secreto)
       clientSecret:
-        "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjQ5ZWE2ZTU5YzYzYmE1M2MwYjI2YmFiZWJlYzVhMTY5NTc0OTI3Zjg0ZDQ0MzdiNzg1YWFhNGU0YTU4NWI1Y2RlMWFkODliZmJlNGU5YjQ1In0.eyJhdWQiOiIxIiwianRpIjoiNDllYTZlNTljNjNiYTUzYzBiMjZiYWJlYmVjNWExNjk1NzQ5MjdmODRkNDQzN2I3ODVhYWE0ZTRhNTg1YjVjZGUxYWQ4OWJmYmU0ZTliNDUiLCJpYXQiOjE3ODA5Mzg0NjAsIm5iZiI6MTc4MDkzODQ2MCwiZXhwIjoxODEyNDc0NDYwLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.eDqysyp0V8dbQRN6UCJZq8gJLCF_wbFPGFQtlTUy2VtkmBgBM4c8zQk2murpZMclR3DhzFwGKLyqsuRLhkeMnZiUQ-LSjhT6gEKBZdxG0EXcAeo6ztLatsNEENzd9iFy2LapfdAcvHPgcE6FlibbF0jupAMF2qSUrOjxK32MS_1lpPfI_IrkVAPkWWx2OnngtJvievbnpBpV0SVhLW0CQxyZ-JLnPWqhdsQSyhNBaHxZ617rTwr8uurIPpOabJ5pdZo9QRPBlX3Oh_s6Z7s1Om9hECd2-zGx0l0YoaY_sBnDM4T02xB7ygXl8IKY-KLnTDdRz3ce4TeEvqwJmwph7kqGDzmuvXYKoVFLmR7PjZN0cMZuBbuyvtTbElSY46XYk4UX4m4TSjdHs68jvTg28CyUHuBG1j-gkdFRqoE3bMnW1xf9Z9vO84ObJVkxtsHW6JV3MEUZNdD0aV2ZVgHN1pz0-QWHWewsQmNzFyPYkmO5UvQWrKvcgMyf2-7hpCtLSV5YgRhZrjO1MQCl1h3V_sXL4ayT0-8T8-YCSyP5nQnip1pwaCwut4C72PCb4Fksr6tZAkllhZgLwe9FJBNRo5P-UKTjLXs15edRuLDGKD-Zm9jH_vQr5BVdmiqZ4a63dReIE0CbdH1nC5YnOuPp-FnxeEM_rURw2EVxTiphCqY", // se cifra
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjcwNmZjNjM3YjUxNTQ1NTkwN2ZkNjkzMTJiNDA5YWJiOTZjMjUzNmU0YWM1NDQyZjBlOGRjODZhMTc0ZDI5ZThmNDdkNjM5YzU0YjhmM2M0In0.eyJhdWQiOiIxIiwianRpIjoiNzA2ZmM2MzdiNTE1NDU1OTA3ZmQ2OTMxMmI0MDlhYmI5NmMyNTM2ZTRhYzU0NDJmMGU4ZGM4NmExNzRkMjllOGY0N2Q2MzljNTRiOGYzYzQiLCJpYXQiOjE3NDg4ODU2NDMsIm5iZiI6MTc0ODg4NTY0MywiZXhwIjoxNzgwNDIxNjQzLCJzdWIiOiI0Iiwic2NvcGVzIjpbXX0.QFQy8DwjiBsu2x4wYuGc_CZFjBdBe5U-hw92OS8w9abWZIRN3R017oQpIrTq4Ff26TFrrxuHv8FbSgjljkPmQKqzCL3EJPE3hR3gtjJii3DM35W7hWKrrzeUILaBAOY4jt0tyJmLgqv7eguRobeQxrUxdZ-m5hrsfjKxzSQgrG5knO-lO-fsrND9WhSVnfUdQXwGAbEPv2wOaIyesQBzRKOe7W1dQNlrSUYNAgZ_XiWQqwqrL3Ygarp-7llgZQBvngKSk3Nc-CoQiQ8dKzQcgFAzIaMwCgJ7EzEblXQZyYf7NqotgfmJ1xT0gWttUAKrcE0NcxChZlBcDbll_EBXtlSt_jFY_pjocjUW9wXH3n8tpT5Nz-XUJQb7Hj8I3xFpwrAhHxv1tFImV0WM1Kq9yVXSopCgCR83RabjxOBGACxQu1eCZ5XY4L1FHD-VBk4BuCDG19Y-CpH9ZdlFne1MM1h1WqQxLhDujatJHGkiCaXi7ON1CfGM18r2AEMocOUEXTYgm_72A89EqgPCIIS2HtJNsB33mez1lCoobXXPbmZsjEXTyq9dt3V0Ink2XQjEUE7rYOQWxWjeihDVu9tplvQkHCokatZYAyX5jH8o0p-JNycY42LVVOBej2I7GDmFt-GuHsG3LCIsmZ9gR7TtxzjaLAhkSFPGTqdFL_7aVnc", // se cifra
     },
   },
 
