@@ -11,6 +11,60 @@ import { logger } from "../src/logger.js";
 //  Correr con:  npm run seed:entes
 // =====================================================================
 const ENTES = [
+  //PODER JUDICIAL
+  {
+    nombre: "PODER JUDICIAL",
+    activo: true,
+
+    // URL base y ruta del endpoint de declaraciones (de tu Insomnia).
+    baseUrl: "https://pdn.stjdigitalcolima.gob.mx",
+    declaracionesPath: "/api/auth/v2/declaraciones",
+
+    // URL del login OAuth2.
+    tokenUrl: "https://pdn.stjdigitalcolima.gob.mx/api/auth/login",
+
+    // Sincronizacion incremental: dejalo en false hasta CONFIRMAR que la API
+    // del ente acepta filtrar por fecha. Si la acepta, pon true y ajusta
+    // fechaParam al nombre real del parametro.
+    incremental: false,
+    fechaParam: "fechaActualizacion",
+
+    auth: {
+      authMode: "oauth", // 'oauth' (form-urlencoded) o 'json'
+      username: "pdnuser_001", // se cifra
+      password: "secret_pdnuser_001", // se cifra
+      clientId: "1", // queda en claro (no es secreto)
+      clientSecret:
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjVmNWFmNTg4MGVmNjVhMTkxYTczZDg2MDE5MzM3OTk2MzM0MGRiYzRhOWY4NWU5NzNiYWNmYmJiZTBlMjY1NzRkN2EyM2I5OWJiMDY5OGM0In0.eyJhdWQiOiIzIiwianRpIjoiNWY1YWY1ODgwZWY2NWExOTFhNzNkODYwMTkzMzc5OTYzMzQwZGJjNGE5Zjg1ZTk3M2JhY2ZiYmJlMGUyNjU3NGQ3YTIzYjk5YmIwNjk4YzQiLCJpYXQiOjE3ODA1MDg3MTcsIm5iZiI6MTc4MDUwODcxNywiZXhwIjoxODEyMDQ0NzE3LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.LiHdmW5pvXmJV9TW2A3P4G8tHKjUfSGSI2pdpzC9_lxetgmGvjg0C0HAKlmeHgCZSU1gbplqP9yCO8t6t-jZjAo38Rz8l1mJpKwiV8ugVCA142871g8uwTcUmMZrtZz1eqgz-_4nMfSmiNsgJE0VluSqnpm36TPcirVjN-0QqB4fBLdFQEbwmuLCVyL_odutKvAneyuz5uYU4byH1PaG3SVTnqrio9y60dnEnhyYpUDnpidmRPFF_NIxivWXxrn3_Q9egguuJ_uAHMW78PxN5T8idEI1uTeG6a-NcRl__cBe4_5IcUikMceKb8XbwaWlng12cz2_15EBtV_lJUOb5ISjydIlc2joYZCQpo8gYpI_cC9xs8DD9ZBbvSIqF3-4Vl13vWbyY3XOpvS5qv-zBfzrf9cHIUb29TxKs81mLgTr-uhPLbSsbPLadZf72SjurOfC56GRaBcXevYPqLXin-3iMl6ECO0eHYr37epZQQq9hwMggZsO6RZdLv8DvhwUCM04LzJx8otxrp9ZwzszwOGSSsw-P2iN5oxWCBIWktIZayobTefXWuZ3IoHCjs_bReZu40DHsCqIo04neJxRPO8BuwbG9yISXSZWQA01sSKtwkZdxQG-2GjY885xhsxGtQUM1anzxWKDY5pumaVX9QWhFde3Saj1juh1x3F8tKc", // se cifra
+    },
+  },
+  //CUAUHTEMOC
+  {
+    nombre: "CUAUHTEMOC",
+    activo: true,
+
+    // URL base y ruta del endpoint de declaraciones (de tu Insomnia).
+    baseUrl: "https://apisidepat.cuauhtemoc-col.gob.mx",
+    declaracionesPath: "/api/auth/v2/declaraciones",
+
+    // URL del login OAuth2.
+    tokenUrl: "https://apisidepat.cuauhtemoc-col.gob.mx/api/auth/login",
+
+    // Sincronizacion incremental: dejalo en false hasta CONFIRMAR que la API
+    // del ente acepta filtrar por fecha. Si la acepta, pon true y ajusta
+    // fechaParam al nombre real del parametro.
+    incremental: false,
+    fechaParam: "fechaActualizacion",
+
+    auth: {
+      authMode: "oauth", // 'oauth' (form-urlencoded) o 'json'
+      username: "pdnuser_001", // se cifra
+      password: "secret_pdnuser_001", // se cifra
+      clientId: "1", // queda en claro (no es secreto)
+      clientSecret:
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjQ5ZWE2ZTU5YzYzYmE1M2MwYjI2YmFiZWJlYzVhMTY5NTc0OTI3Zjg0ZDQ0MzdiNzg1YWFhNGU0YTU4NWI1Y2RlMWFkODliZmJlNGU5YjQ1In0.eyJhdWQiOiIxIiwianRpIjoiNDllYTZlNTljNjNiYTUzYzBiMjZiYWJlYmVjNWExNjk1NzQ5MjdmODRkNDQzN2I3ODVhYWE0ZTRhNTg1YjVjZGUxYWQ4OWJmYmU0ZTliNDUiLCJpYXQiOjE3ODA5Mzg0NjAsIm5iZiI6MTc4MDkzODQ2MCwiZXhwIjoxODEyNDc0NDYwLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.eDqysyp0V8dbQRN6UCJZq8gJLCF_wbFPGFQtlTUy2VtkmBgBM4c8zQk2murpZMclR3DhzFwGKLyqsuRLhkeMnZiUQ-LSjhT6gEKBZdxG0EXcAeo6ztLatsNEENzd9iFy2LapfdAcvHPgcE6FlibbF0jupAMF2qSUrOjxK32MS_1lpPfI_IrkVAPkWWx2OnngtJvievbnpBpV0SVhLW0CQxyZ-JLnPWqhdsQSyhNBaHxZ617rTwr8uurIPpOabJ5pdZo9QRPBlX3Oh_s6Z7s1Om9hECd2-zGx0l0YoaY_sBnDM4T02xB7ygXl8IKY-KLnTDdRz3ce4TeEvqwJmwph7kqGDzmuvXYKoVFLmR7PjZN0cMZuBbuyvtTbElSY46XYk4UX4m4TSjdHs68jvTg28CyUHuBG1j-gkdFRqoE3bMnW1xf9Z9vO84ObJVkxtsHW6JV3MEUZNdD0aV2ZVgHN1pz0-QWHWewsQmNzFyPYkmO5UvQWrKvcgMyf2-7hpCtLSV5YgRhZrjO1MQCl1h3V_sXL4ayT0-8T8-YCSyP5nQnip1pwaCwut4C72PCb4Fksr6tZAkllhZgLwe9FJBNRo5P-UKTjLXs15edRuLDGKD-Zm9jH_vQr5BVdmiqZ4a63dReIE0CbdH1nC5YnOuPp-FnxeEM_rURw2EVxTiphCqY", // se cifra
+    },
+  },
   //OSAFIG
   {
     nombre: "OSAFIG",
@@ -65,33 +119,6 @@ const ENTES = [
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjI4NWYxZWIxMGEwYzFlZWQ4OTEyZTNiM2ZiNDQyNGY5ZjViMGIxZmE0NWY2MTVkMGJmNTM5OGU3ZjI5ZjJkMTQwMDE1ODQ0MTE0YTRhY2RkIn0.eyJhdWQiOiIxIiwianRpIjoiMjg1ZjFlYjEwYTBjMWVlZDg5MTJlM2IzZmI0NDI0ZjlmNWIwYjFmYTQ1ZjYxNWQwYmY1Mzk4ZTdmMjlmMmQxNDAwMTU4NDQxMTRhNGFjZGQiLCJpYXQiOjE3ODA1OTc3OTUsIm5iZiI6MTc4MDU5Nzc5NSwiZXhwIjoxODEyMTMzNzk1LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.ClQ0SngUBgCsXbHc7eUg7OXpZaSSZotl7pM-EyfRb1EXOfHYAkY5YxdEYepbL7Td5baj9WeVYCuEyMu8-RGWuieE8zHM5axgWzuqPd-baF1zYXqNcAF5fqYhtqHzIuqfSdufPXbgXEUlPHuEyIhm5MTQ3bUcGMQ5o-ap2mQb7MPStdZnzua8m2hCayr1qFrIz04DVfUk7AzpN2hT1wQPr8FFX5JdPNGAhmzZMw-pPLCMiZjCaVzy_OYVFZNFSDHR6Z-ud_6-ZNIwpxfYDnqE4QmHxBNoL2Dgfc5GnPIS_ZTnBIG1uC7dDdo_aqrDckyEKhkD_AuFSvDhrqHnG2dPL9-S6s4QBq4QhQ4UgCmY_1fRsI28GhyFbkTaHqUEj-P_nOLP8cw0S5kmLxTXVNxtAzGBrD_48CBcSwB5RLoAeIKA4akc_atHlMCCaTET6vDGfaLfYvBUDKHwu1qYlKGXIBTm9SzFM6oGljoMFuCo76eaOe9mfmghTp7MHCv8xetxL2o_noeZjPtnPRM2iSxt0mAxFCVzSuoHitYA9V-BXwtiyijhutjeUpOT0n5QkRgGQNL50rb9B-K_XngIdSwPDk8kTy5wIEeNpmVgtrjmyBwLbfnQAxyjWxzS2KdxuqjIJiqWFVoSV-tkwlfk1IxOZya8DePcNqNvEOd5yJh6dfM", // se cifra
     },
   },
-  //PODER JUDICIAL
-  {
-    nombre: "PODER JUDICIAL",
-    activo: true,
-
-    // URL base y ruta del endpoint de declaraciones (de tu Insomnia).
-    baseUrl: "https://pdn.stjdigitalcolima.gob.mx",
-    declaracionesPath: "/api/auth/v2/declaraciones",
-
-    // URL del login OAuth2.
-    tokenUrl: "https://pdn.stjdigitalcolima.gob.mx/api/auth/login",
-
-    // Sincronizacion incremental: dejalo en false hasta CONFIRMAR que la API
-    // del ente acepta filtrar por fecha. Si la acepta, pon true y ajusta
-    // fechaParam al nombre real del parametro.
-    incremental: false,
-    fechaParam: "fechaActualizacion",
-
-    auth: {
-      authMode: "oauth", // 'oauth' (form-urlencoded) o 'json'
-      username: "pdnuser_001", // se cifra
-      password: "secret_pdnuser_001", // se cifra
-      clientId: "1", // queda en claro (no es secreto)
-      clientSecret:
-        "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjVmNWFmNTg4MGVmNjVhMTkxYTczZDg2MDE5MzM3OTk2MzM0MGRiYzRhOWY4NWU5NzNiYWNmYmJiZTBlMjY1NzRkN2EyM2I5OWJiMDY5OGM0In0.eyJhdWQiOiIzIiwianRpIjoiNWY1YWY1ODgwZWY2NWExOTFhNzNkODYwMTkzMzc5OTYzMzQwZGJjNGE5Zjg1ZTk3M2JhY2ZiYmJlMGUyNjU3NGQ3YTIzYjk5YmIwNjk4YzQiLCJpYXQiOjE3ODA1MDg3MTcsIm5iZiI6MTc4MDUwODcxNywiZXhwIjoxODEyMDQ0NzE3LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.LiHdmW5pvXmJV9TW2A3P4G8tHKjUfSGSI2pdpzC9_lxetgmGvjg0C0HAKlmeHgCZSU1gbplqP9yCO8t6t-jZjAo38Rz8l1mJpKwiV8ugVCA142871g8uwTcUmMZrtZz1eqgz-_4nMfSmiNsgJE0VluSqnpm36TPcirVjN-0QqB4fBLdFQEbwmuLCVyL_odutKvAneyuz5uYU4byH1PaG3SVTnqrio9y60dnEnhyYpUDnpidmRPFF_NIxivWXxrn3_Q9egguuJ_uAHMW78PxN5T8idEI1uTeG6a-NcRl__cBe4_5IcUikMceKb8XbwaWlng12cz2_15EBtV_lJUOb5ISjydIlc2joYZCQpo8gYpI_cC9xs8DD9ZBbvSIqF3-4Vl13vWbyY3XOpvS5qv-zBfzrf9cHIUb29TxKs81mLgTr-uhPLbSsbPLadZf72SjurOfC56GRaBcXevYPqLXin-3iMl6ECO0eHYr37epZQQq9hwMggZsO6RZdLv8DvhwUCM04LzJx8otxrp9ZwzszwOGSSsw-P2iN5oxWCBIWktIZayobTefXWuZ3IoHCjs_bReZu40DHsCqIo04neJxRPO8BuwbG9yISXSZWQA01sSKtwkZdxQG-2GjY885xhsxGtQUM1anzxWKDY5pumaVX9QWhFde3Saj1juh1x3F8tKc", // se cifra
-    },
-  },
   //FISCALIA GENERAL DEL ESTADO
   {
     nombre: "FISCALIA GENERAL DEL ESTADO",
@@ -144,33 +171,6 @@ const ENTES = [
       clientId: "2", // queda en claro (no es secreto)
       clientSecret:
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjM3NzNiMDY5YjA2YzFmYzM2ZDRiMTZjZjNhMTUxYTM2MTI0MTBjYzZmYmI5MmNlYmYxNWZmYWRiYzg1MDc1MzY4NDVjY2M2NzA2MjIwNWFlIn0.eyJhdWQiOiIxIiwianRpIjoiMzc3M2IwNjliMDZjMWZjMzZkNGIxNmNmM2ExNTFhMzYxMjQxMGNjNmZiYjkyY2ViZjE1ZmZhZGJjODUwNzUzNjg0NWNjYzY3MDYyMjA1YWUiLCJpYXQiOjE3NTYzMTc2MDEsIm5iZiI6MTc1NjMxNzYwMSwiZXhwIjoxNzg3ODUzNjAxLCJzdWIiOiIyIiwic2NvcGVzIjpbXX0.PUppbVGM5f6rQw0UGS--Xe3IlituKpRgcmJ4OVRPG4Ke2fokHrrT-8-qM-ttimBLuXXPbFnhK5ImABzv-v_5Mwv7dhm0_rtZ-zdaYDAxA6eT4s06bZK-jZ1-E92Wozj5-HcFNlhhQio6QPFqKHAk4Q7Oj89g_2xszbhWnuXVaZpW8cVKPDgLBS9PEcSB6zIFXXODtnRb7XeSif7ks3oc8AnP6qcI9Mw3hrdEockTnrKKfZ8tduH7OvRHnZb9DTcwPJ5gt7tzyH7f_cvtgWkkcF4xKzC6RS3wo4BquhMC9wz6wRkyts-UFLjeG4VCnlmYHQgAgL5wlH8TryECkXQdrpGtVibOZBRjcfOA4zcT2QzGvHHSX5h88yZvWQIrrHmc6Ncn9B1KXxhPgoJd15EyVw2ZJ_dEZquaZKKN7gpXFpH1lTT8zj2qvAaqFfr6SYu65qo89oPAScdjnf8HgB2_ZMIbk-WMqzGfRi_txdg-lp3TnOcTvA6bB_UIgjM_UJ6kUCse_sycDwsOAmcQIngGLByV34Fhdo67e9FP4HNzVHHHTvyJTeHN6oNMWtbTvRIsLjHmkooj0d33BJhzw664TeiYzoNtGwlNPEuoVkuH_XABT7IC1-8P_wGjtrH607AkJbk8yf7hk6W4jTKHvcfN7EdzxIrc-v1e2EKSO2y4Wgw", // se cifra
-    },
-  },
-  //CUAUHTEMOC
-  {
-    nombre: "CUAUHTEMOC",
-    activo: true,
-
-    // URL base y ruta del endpoint de declaraciones (de tu Insomnia).
-    baseUrl: "https://apisidepat.cuauhtemoc-col.gob.mx",
-    declaracionesPath: "/api/auth/v2/declaraciones",
-
-    // URL del login OAuth2.
-    tokenUrl: "https://apisidepat.cuauhtemoc-col.gob.mx/api/auth/login",
-
-    // Sincronizacion incremental: dejalo en false hasta CONFIRMAR que la API
-    // del ente acepta filtrar por fecha. Si la acepta, pon true y ajusta
-    // fechaParam al nombre real del parametro.
-    incremental: false,
-    fechaParam: "fechaActualizacion",
-
-    auth: {
-      authMode: "oauth", // 'oauth' (form-urlencoded) o 'json'
-      username: "pdnuser_001", // se cifra
-      password: "secret_pdnuser_001", // se cifra
-      clientId: "1", // queda en claro (no es secreto)
-      clientSecret:
-        "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjQ5ZWE2ZTU5YzYzYmE1M2MwYjI2YmFiZWJlYzVhMTY5NTc0OTI3Zjg0ZDQ0MzdiNzg1YWFhNGU0YTU4NWI1Y2RlMWFkODliZmJlNGU5YjQ1In0.eyJhdWQiOiIxIiwianRpIjoiNDllYTZlNTljNjNiYTUzYzBiMjZiYWJlYmVjNWExNjk1NzQ5MjdmODRkNDQzN2I3ODVhYWE0ZTRhNTg1YjVjZGUxYWQ4OWJmYmU0ZTliNDUiLCJpYXQiOjE3ODA5Mzg0NjAsIm5iZiI6MTc4MDkzODQ2MCwiZXhwIjoxODEyNDc0NDYwLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.eDqysyp0V8dbQRN6UCJZq8gJLCF_wbFPGFQtlTUy2VtkmBgBM4c8zQk2murpZMclR3DhzFwGKLyqsuRLhkeMnZiUQ-LSjhT6gEKBZdxG0EXcAeo6ztLatsNEENzd9iFy2LapfdAcvHPgcE6FlibbF0jupAMF2qSUrOjxK32MS_1lpPfI_IrkVAPkWWx2OnngtJvievbnpBpV0SVhLW0CQxyZ-JLnPWqhdsQSyhNBaHxZ617rTwr8uurIPpOabJ5pdZo9QRPBlX3Oh_s6Z7s1Om9hECd2-zGx0l0YoaY_sBnDM4T02xB7ygXl8IKY-KLnTDdRz3ce4TeEvqwJmwph7kqGDzmuvXYKoVFLmR7PjZN0cMZuBbuyvtTbElSY46XYk4UX4m4TSjdHs68jvTg28CyUHuBG1j-gkdFRqoE3bMnW1xf9Z9vO84ObJVkxtsHW6JV3MEUZNdD0aV2ZVgHN1pz0-QWHWewsQmNzFyPYkmO5UvQWrKvcgMyf2-7hpCtLSV5YgRhZrjO1MQCl1h3V_sXL4ayT0-8T8-YCSyP5nQnip1pwaCwut4C72PCb4Fksr6tZAkllhZgLwe9FJBNRo5P-UKTjLXs15edRuLDGKD-Zm9jH_vQr5BVdmiqZ4a63dReIE0CbdH1nC5YnOuPp-FnxeEM_rURw2EVxTiphCqY", // se cifra
     },
   },
 
