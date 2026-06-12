@@ -106,6 +106,8 @@ export async function fetchDeclaraciones(ente, { since = null, onItems }) {
   let expectedPages = null;
   let prevFirstId = null;
   let reauthed = false;
+  let consecutiveFailures = 0;
+  let stoppedEarly = false;
   const failedPages = [];
 
   const HARD_MAX_PAGES = 5000; // freno absoluto
@@ -128,6 +130,7 @@ export async function fetchDeclaraciones(ente, { since = null, onItems }) {
     // Pagina con error del servidor del ente: anotar, saltar y seguir.
     if (r.status !== 200) {
       failedPages.push(page);
+      consecutiveFailures += 1;
       logger.warn(
         "Pagina con error en el servidor del ente; se omite y se continua",
         {
@@ -137,10 +140,26 @@ export async function fetchDeclaraciones(ente, { since = null, onItems }) {
           detalle: (r.errorText || "").slice(0, 160),
         },
       );
+      // Corta-circuitos: si fallan demasiadas paginas seguidas, es falla
+      // sistematica del ente; dejamos de insistir para no perder tiempo.
+      if (consecutiveFailures >= config.maxConsecutiveFailures) {
+        stoppedEarly = true;
+        logger.error(
+          "Demasiadas paginas seguidas con error; se detiene este ente.",
+          {
+            ente: ente.nombre,
+            fallasSeguidas: consecutiveFailures,
+            ultimaPagina: page,
+            paginasAprox: expectedPages ?? "?",
+          },
+        );
+        break;
+      }
       if (expectedPages != null && page >= expectedPages) break;
       page += 1;
       continue;
     }
+    consecutiveFailures = 0;
 
     const items = extractResults(r.data);
     if (totalRows == null) {
@@ -194,5 +213,5 @@ export async function fetchDeclaraciones(ente, { since = null, onItems }) {
     );
   }
 
-  return { fetched, failedPages };
+  return { fetched, failedPages, stoppedEarly };
 }

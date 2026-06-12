@@ -76,6 +76,7 @@ async function syncEnte(ente) {
   };
 
   let failedPages = [];
+  let stoppedEarly = false;
   try {
     const since = ente.incremental ? ente.lastCursor : null;
 
@@ -106,6 +107,7 @@ async function syncEnte(ente) {
     });
     run.fetched = result.fetched;
     failedPages = result.failedPages || [];
+    stoppedEarly = result.stoppedEarly || false;
     await flush();
 
     // Guardamos el cursor (fecha mas reciente vista) para la proxima corrida
@@ -137,6 +139,16 @@ async function syncEnte(ente) {
       });
     }
     run.paginasOmitidas = failedPages.length;
+    if (stoppedEarly) {
+      run.detenidoPorFallas = true;
+      if (run.errors.length < 20) {
+        run.errors.push({
+          id: "(detenido)",
+          motivo:
+            "Se detuvo este ente por demasiadas paginas seguidas con error (falla sistematica del servidor del ente).",
+        });
+      }
+    }
     if (failedPages.length && run.errors.length < 20) {
       run.errors.push({
         id: "(paginas omitidas)",
